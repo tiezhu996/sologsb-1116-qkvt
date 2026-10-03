@@ -2,21 +2,23 @@ import { onUnmounted, reactive } from 'vue'
 import type { StoreApi } from 'zustand/vanilla'
 import Dexie, { type Table } from 'dexie'
 import type { CollectPoint, FungusRecord, IdentifyLog, SporePrint } from '@/types'
+import type { ImportJournal } from '@/types/sync'
 
 /** IndexedDB 数据结构版本号 */
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 
 export interface MetaRow {
   key: string
-  value: number
+  value: number | string
 }
 
-/** Dexie 封装：条目 / 孢子印 / 采集点 / 鉴定结论 四张表 + 元数据表 */
+/** Dexie 封装：条目 / 孢子印 / 采集点 / 鉴定结论 / 导入台账 + 元数据表 */
 class FungiGuideDb extends Dexie {
   records!: Table<FungusRecord, string>
   spores!: Table<SporePrint, string>
   points!: Table<CollectPoint, string>
   identifies!: Table<IdentifyLog, string>
+  imports!: Table<ImportJournal, string>
   meta!: Table<MetaRow, string>
 
   constructor() {
@@ -29,7 +31,7 @@ class FungiGuideDb extends Dexie {
       meta: 'key'
     })
     // v2：新增「菌肉变色反应」字段，迁移时为历史条目补齐默认值（不变色）
-    this.version(SCHEMA_VERSION)
+    this.version(2)
       .stores({
         records: 'id, code, pointId, attachment, capShape',
         spores: 'id, recordId, color, observeDate',
@@ -47,6 +49,15 @@ class FungiGuideDb extends Dexie {
             }
           })
       })
+    // v3：新增 imports 导入台账表，支撑离线批次断点恢复与重试去重
+    this.version(SCHEMA_VERSION).stores({
+      records: 'id, code, pointId, attachment, capShape',
+      spores: 'id, recordId, color, observeDate',
+      points: 'id, name, substrate, vegetation',
+      identifies: 'id, recordId, conclusion, date',
+      imports: 'key, status, updatedAt',
+      meta: 'key'
+    })
   }
 }
 

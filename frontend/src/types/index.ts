@@ -25,3 +25,12 @@ export { VEGETATIONS, SUBSTRATES } from './point'
 export type { CollectPoint, Vegetation, Substrate } from './point'
 export { ID_BASES, ID_CONFIDENCES } from './identify'
 export type { IdentifyLog, IdBasis, IdConfidence } from './identify'
+export { OFFLINE_BATCH_FORMAT, OFFLINE_BATCH_VERSION } from './sync'
+export type {
+  OfflineBatch,
+  ConflictField,
+  MergeConflict,
+  MergeStep,
+  MergePlan,
+  ImportJournal
+} from './sync'
