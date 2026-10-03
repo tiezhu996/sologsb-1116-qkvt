@@ -32,6 +32,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/ComparePage.vue'),
     meta: { title: '条目对比' }
   },
+  {
+    path: '/sync',
+    name: 'sync',
+    component: () => import('@/pages/SyncPage.vue'),
+    meta: { title: '离线批次合并' }
+  },
   { path: '/:pathMatch(.*)*', redirect: '/atlas' }
 ]
 
